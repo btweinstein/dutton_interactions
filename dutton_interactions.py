@@ -1,5 +1,6 @@
 import pandas as pd
 import copy
+import matplotlib.pyplot as plt
 
 ORG_NAMES = ['Candida',
                 'S. equorum',
@@ -62,6 +63,9 @@ class Pairwise_Excel_Table():
                     data = data.iloc[:, 1:]
                     # We need to repeat the zeroth day for each or else we get NaN
                     data.iloc[:, 0] = data.iloc[0, 0]
+
+                    # Convert all non-numeric data to nan
+                    data = data.convert_objects(convert_numeric=True)
 
                     measurement_dict[cur_measurement][cur_row_name] = data
 
@@ -156,3 +160,17 @@ class Experiment():
 
     def __repr__(self):
         return str(self.org_list) + ' exp'
+
+    def plot_experiment(self, **kwargs):
+        for o in self.org_list:
+            cur_color = ORG_COLOR_DICT[o.org_type]
+            num_replicates = o.growth_array.shape[0]
+            for i in range(num_replicates):
+                if i == num_replicates - 1:
+                    plt.semilogy(self.day_list, o.growth_array.iloc[i, :],
+                                marker='.', color=cur_color, label = o.org_type,
+                                **kwargs)
+                else:
+                    plt.semilogy(self.day_list, o.growth_array.iloc[i, :],
+                                marker='.', color=cur_color,
+                                **kwargs)

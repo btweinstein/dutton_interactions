@@ -9,5 +9,5 @@ setup(
     author='Bryan Weinstein',
     author_email='bweinstein@seas.harvard.edu',
     description='',
-    install_requires=['pandas']
+    install_requires=['pandas', 'matplotlib']
 )
