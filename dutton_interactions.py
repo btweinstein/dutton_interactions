@@ -1,13 +1,21 @@
 import pandas as pd
 import copy
 
-STRAIN_NAMES = ['Candida',
+ORG_NAMES = ['Candida',
                 'S. equorum',
                 'S. succinus',
                 'Brevibacterium',
                 'Brachybacterium',
                 'Penicillium',
                 'Scopulariopsis']
+
+# Define a color for each organism
+ORG_COLOR_DICT = {}
+colors = ['red', 'green', 'blue', 'orange', 'black', 'purple', 'brown']
+count = 0
+for org in ORG_NAMES:
+    ORG_COLOR_DICT[org] = colors[count]
+    count += 1
 
 class Pairwise_Excel_Table():
     def __init__(self, path_to_table, day_list, num_reps = 3, max_col = 5):
@@ -42,9 +50,9 @@ class Pairwise_Excel_Table():
         for i in range(num_rows):
             cur_row = table1.iloc[i]
             cur_row_name = str(cur_row.iloc[0])
-            in_list = [s in cur_row_name for s in STRAIN_NAMES]
+            in_list = [s in cur_row_name for s in ORG_NAMES]
             if any(in_list) and (cur_row_name != 'nan'):
-                if cur_row_name in STRAIN_NAMES:
+                if cur_row_name in ORG_NAMES:
                     cur_measurement = cur_row_name
                     measurement_dict[cur_measurement] = {}
                 else:
@@ -116,6 +124,43 @@ class Pairwise_Excel_Table():
                     del measurement_dict_copy[k1][k2]
                     del measurement_dict_copy[desired_organism_name][other_organism_key]
         return experiment_list
+
+    def get_desired_experiment(self, desired_org_list):
+        """Gets the experiment with the strings in desired_org_list. Make sure that the input is a list!"""
+        for x in self.experiment_list:
+            if len(x.org_list) == len(desired_org_list):
+                truth_list = []
+                experiment_orgtypes = [q.org_type for q in x.org_list]
+                for desired_org_type in desired_org_list:
+                    is_in_list = desired_org_type in experiment_orgtypes
+                    truth_list.append(is_in_list)
+                if all(truth_list):
+                    return x
+        print 'I could not find that experiment!'
+        return None
+
+
+    def get_alone_growth_experiment(self, org_name):
+        desired_exp = None
+        for x in self.experiment_list:
+            if len(x.org_list) == 1 and (x.org_list[0].org_type == org_name):
+                desired_exp = x
+        return desired_exp
+
+    def get_pairwise_growth_experiment(self, org1_name, org2_name):
+        desired_exp = None
+
+        for x in self.experiment_list:
+            # TODO There is definitely a way to generalize this. This is ok for now though.
+            is_correct_length = len(x.org_list) == 2
+            is_org1_correct = [org1_name in cur_org_name for cur_org_name in x.org_list]
+            is_org2_correct = [org2_name in cur_org_name for cur_org_name in x.org_list]
+
+            if is_correct_length and is_org1_correct and is_org2_correct:
+                desired_exp = x
+
+        return x
+
 
 class Organism():
     """Organisms should only be defined in experiments."""
