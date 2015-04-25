@@ -139,29 +139,6 @@ class Pairwise_Excel_Table():
         print 'I could not find that experiment!'
         return None
 
-
-    def get_alone_growth_experiment(self, org_name):
-        desired_exp = None
-        for x in self.experiment_list:
-            if len(x.org_list) == 1 and (x.org_list[0].org_type == org_name):
-                desired_exp = x
-        return desired_exp
-
-    def get_pairwise_growth_experiment(self, org1_name, org2_name):
-        desired_exp = None
-
-        for x in self.experiment_list:
-            # TODO There is definitely a way to generalize this. This is ok for now though.
-            is_correct_length = len(x.org_list) == 2
-            is_org1_correct = [org1_name in cur_org_name for cur_org_name in x.org_list]
-            is_org2_correct = [org2_name in cur_org_name for cur_org_name in x.org_list]
-
-            if is_correct_length and is_org1_correct and is_org2_correct:
-                desired_exp = x
-
-        return x
-
-
 class Organism():
     """Organisms should only be defined in experiments."""
     def __init__(self, org_type, growth_array, day_list):
